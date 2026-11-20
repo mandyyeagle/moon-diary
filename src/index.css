@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-black text-white;
+    font-family: 'Montserrat', 'Gilroy', sans-serif;
+    margin: 0;
+    overscroll-behavior: none;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-4;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Активная кнопка навигации: градиентная обводка, стекло, без заливки */
+.nav-btn-active {
+  position: relative;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 15px rgba(100, 150, 255, 0.15);
+  padding: 8px 24px;
+}
+
+.nav-btn-active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Скрыть визуальную полосу прокрутки */
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+html {
+  scrollbar-width: none; /* Firefox */
+}
