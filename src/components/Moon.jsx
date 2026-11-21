@@ -17,7 +17,7 @@ const Moon = ({ phase = 0.5 }) => {
       <img 
         src={getMoonImage(phase)} 
         alt="Moon Phase" 
-        className="w-full h-full object-contain transition-opacity duration-1000 ease-in-out"
+        className="relative w-full h-full rounded-full overflow-hidden z-10 bg-transparent flex items-center justify-center duration-1000 ease-in-out"
         style={{ 
           /* Делает черный фон картинки прозрачным */
           mixBlendMode: 'screen',

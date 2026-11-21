@@ -177,7 +177,7 @@ export default function TodayScreen() {
       </div>
 
       {/* 2. НЕПОДВИЖНОЕ ПОЛЕ ВВОДА (Прибито к низу) */}
-      <div className="absolute bottom-0 left-0 right-0 w-full p-4 bg-gradient-to-t from-[#0a0f1c] via-[#0a0f1c]/90 to-transparent z-50">
+      <div className="fixed bottom-0 left-0 right-0 w-full max-w-[400px] mx-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-gradient-to-t from-[#0a0f1c] via-[#0a0f1c]/90 to-transparent z-[9999]">
         
         {messages.length > 0 && (
           <div className="mb-4 max-h-60 overflow-y-auto flex flex-col gap-2" style={{ scrollbarWidth: 'none' }}>
