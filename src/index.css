@@ -1,68 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  html {
-    scroll-behavior: smooth;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  body {
-    @apply bg-black text-white;
-    font-family: 'Montserrat', 'Gilroy', sans-serif;
-    margin: 0;
-    overscroll-behavior: none;
-  }
-
-  #root {
-    min-height: 100vh;
-  }
+@font-face {
+  font-family: 'Gilroy';
+  src: local('Gilroy'), url('/fonts/Gilroy/Gilroy-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
 }
 
-@layer components {
-  .glass-card {
-    @apply bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-4;
-  }
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background-color: #0a0f1c; /* Темный фон для всего сайта */
+  color: white;
+  font-family: 'Gilroy', 'Manrope', sans-serif;
+  position: fixed;
+  width: 100%;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-/* Активная кнопка навигации: градиентная обводка, стекло, без заливки */
-.nav-btn-active {
-  position: relative;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 15px rgba(100, 150, 255, 0.15);
-  padding: 8px 24px;
-}
-
-.nav-btn-active::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-/* Скрыть визуальную полосу прокрутки */
-::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-html {
-  scrollbar-width: none; /* Firefox */
-}
-
+/* Анимация кометы */
 @keyframes shoot {
   0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; }
   100% { transform: translateX(-1000px) translateY(500px) rotate(-45deg); opacity: 0; }
@@ -75,8 +36,7 @@ html {
   background: #fff;
   border-radius: 50%;
   box-shadow: 0 0 0 2px rgba(255,255,255,0.1), 0 0 0 4px rgba(255,255,255,0.1), 0 0 15px 2px rgba(255,255,255,1);
-  /* 16s — это в 4 раза медленнее */
-  animation: shoot 16s linear infinite; 
+  animation: shoot 16s linear infinite;
   z-index: 1;
   pointer-events: none;
 }
@@ -91,14 +51,7 @@ html {
   background: linear-gradient(90deg, rgba(255,255,255,1), transparent);
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-  -webkit-overflow-scrolling: touch;
+/* Скрываем скроллбар */
+::-webkit-scrollbar {
+  display: none;
 }
-
-/* ... остальной твой код (tailwind, meteor и т.д.) ... */

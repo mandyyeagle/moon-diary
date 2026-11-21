@@ -16,18 +16,18 @@ export default function App() {
   const phaseAngle = MoonPhase(today);
   const phase = (1 - Math.cos(phaseAngle * Math.PI / 180)) / 2;
 
-  // Функция обработки свайпа
+  // Обработка свайпа
   const handleDragEnd = (event, info) => {
     const swipe = info.offset.x;
     if (swipe < -50 && currentIndex < tabs.length - 1) {
-      setActiveTab(tabs[currentIndex + 1]); // Свайп влево
+      setActiveTab(tabs[currentIndex + 1]);
     } else if (swipe > 50 && currentIndex > 0) {
-      setActiveTab(tabs[currentIndex - 1]); // Свайп вправо
+      setActiveTab(tabs[currentIndex - 1]);
     }
   };
 
   return (
-    <div className="relative w-full max-w-[400px] h-[100dvh] mx-auto overflow-hidden bg-[#0a0f1c] text-white font-sans">
+    <div className="relative w-full h-[100dvh] overflow-hidden bg-[#0a0f1c] text-white font-sans">
       
       {/* ФОН */}
       <motion.div 
@@ -41,7 +41,7 @@ export default function App() {
       <div className="meteor top-[10%] right-[-10%]" style={{ animationDelay: '0s' }}></div>
       <div className="meteor top-[40%] right-[-20%]" style={{ animationDelay: '8s' }}></div>
 
-      {/* ГОРИЗОНТАЛЬНЫЙ ПРОКРУТ (Свайпы) */}
+      {/* СВАЙП-КАРУСЕЛЬ */}
       <motion.div
         className="relative w-full h-full z-5 flex cursor-grab active:cursor-grabbing"
         style={{ width: '300vw' }}
@@ -63,7 +63,7 @@ export default function App() {
         </div>
       </motion.div>
 
-      {/* ПАРЯЩАЯ ЛУНА ДЛЯ ДРУГИХ ЭКРАНОВ */}
+      {/* ПАРЯЩАЯ ЛУНА (вызов твоего рабочего компонента) */}
       {activeTab !== 'today' && (
         <motion.div
           initial={{ scale: 0.5, opacity: 0 }}
@@ -77,8 +77,8 @@ export default function App() {
         </motion.div>
       )}
 
-      {/* НАВИГАЦИЯ (fixed) */}
-      <div className="fixed top-0 left-0 right-0 w-full max-w-[400px] mx-auto z-50 bg-gradient-to-b from-[#0a0f1c] via-[#0a0f1c]/90 to-transparent pb-4 pt-2">
+      {/* НАВИГАЦИЯ */}
+      <div className="absolute top-0 left-0 w-full z-50 bg-gradient-to-b from-[#0a0f1c] via-[#0a0f1c]/80 to-transparent pb-4 pt-2">
         <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
 

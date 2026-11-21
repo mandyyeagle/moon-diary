@@ -1,11 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { MoonPhase, SearchMoonPhase, MakeTime, EclipticGeoMoon } from 'astronomy-engine';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import Moon from './Moon';
 import { tipsData } from '../data/dailyTips';
 
 export default function TodayScreen() {
   const today = new Date();
+  const scrollRef = useRef(null);
   
+  // Отслеживаем скролл внутри контейнера
+  const { scrollYProgress } = useScroll({
+    container: scrollRef,
+    offset: ["start start", "end start"]
+  });
+
+  // Применяем трансформации: скроллим вниз -> луна уменьшается и уезжает вверх
+  const moonScale = useTransform(scrollYProgress, [0, 0.4], [1, 0.5]);
+  const moonY = useTransform(scrollYProgress, [0, 0.4], [0, -100]);
+  const moonOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+
   const [inputText, setInputText] = useState('');
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -116,8 +129,9 @@ export default function TodayScreen() {
   return (
     <div className="w-full h-full relative overflow-hidden">
       
-      {/* СКРОЛЛ КОНТЕНТА (pt - отступ сверху, pb - отступ снизу под поле ввода) */}
+      {/* Привязываем ref для отслеживания скролла */}
       <div 
+        ref={scrollRef}
         className="w-full h-full overflow-y-auto px-4 pt-24 pb-32" 
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
@@ -125,44 +139,52 @@ export default function TodayScreen() {
           {formattedDate}
         </div>
 
-        <Moon phase={astroData.phase} />
+        {/* Анимированная обертка вокруг Луны */}
+        <motion.div 
+          style={{ scale: moonScale, y: moonY, opacity: moonOpacity }}
+          className="origin-center"
+        >
+          <Moon />
+        </motion.div>
 
-        <div className="flex items-center justify-center gap-3 mt-0 mb-2">
-          <span className="text-3xl leading-none select-none">🌙</span>
-          <svg width="48" height="12" viewBox="0 0 48 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 6H46M46 6L41 1M46 6L41 11" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <img src={`/zodiac/${astroData.zodiacImg}.png`} alt="Zodiac" className="w-8 h-8 object-contain rounded-md" />
-        </div>
-
-        <div className="text-center text-white text-[24px] font-medium mb-1" style={{ fontFamily: 'Gilroy, sans-serif' }}>
-          {astroData.phaseText}, {astroData.zodiacRu}, {astroData.lunarDay}-й день
-        </div>
-        
-        <div className="text-center mb-6">
-          <div className="text-[16px] text-gray-400 mb-1" style={{ fontFamily: 'Gilroy, sans-serif' }}>совет дня:</div>
-          <div className="text-[16px] text-white/90" style={{ fontFamily: 'Gilroy, sans-serif' }}>
-            {currentAdvice}
+        {/* Остальной контент (он будет прокручиваться за Луной) */}
+        <div className="relative z-20">
+          <div className="flex items-center justify-center gap-3 mt-0 mb-2">
+            <span className="text-3xl leading-none select-none">🌙</span>
+            <svg width="48" height="12" viewBox="0 0 48 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 6H46M46 6L41 1M46 6L41 11" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <img src={`/zodiac/${astroData.zodiacImg}.png`} alt="Zodiac" className="w-8 h-8 object-contain rounded-md" />
           </div>
-        </div>
 
-        <div className="flex flex-col gap-3">
-          {cards.map((card, index) => (
-            <div 
-              key={index} 
-              onClick={() => handleSend(`Расскажи подробнее про: ${card.title} ${card.text}`)}
-              className="flex items-center bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-3 transition-all duration-300 ease-in-out hover:bg-white/20 cursor-pointer active:scale-95"
-            >
-              <span className="text-2xl mr-3">{card.emoji}</span>
-              <span className="text-white text-[15px] lowercase" style={{ fontFamily: 'Gilroy, sans-serif' }}>
-                {card.title} {card.text}
-              </span>
+          <div className="text-center text-white text-[24px] font-medium mb-1" style={{ fontFamily: 'Gilroy, sans-serif' }}>
+            {astroData.phaseText}, {astroData.zodiacRu}, {astroData.lunarDay}-й день
+          </div>
+          
+          <div className="text-center mb-6">
+            <div className="text-[16px] text-gray-400 mb-1" style={{ fontFamily: 'Gilroy, sans-serif' }}>совет дня:</div>
+            <div className="text-[16px] text-white/90" style={{ fontFamily: 'Gilroy, sans-serif' }}>
+              {currentAdvice}
             </div>
-          ))}
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {cards.map((card, index) => (
+              <div 
+                key={index} 
+                onClick={() => handleSend(`Расскажи подробнее про: ${card.title} ${card.text}`)}
+                className="flex items-center bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-3 transition-all duration-300 ease-in-out hover:bg-white/20 cursor-pointer active:scale-95"
+              >
+                <span className="text-2xl mr-3">{card.emoji}</span>
+                <span className="text-white text-[15px] lowercase" style={{ fontFamily: 'Gilroy, sans-serif' }}>
+                  {card.title} {card.text}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* РАЗМЫТИЕ ФОНА ПРИ ЧАТЕ */}
       {messages.length > 0 && (
         <div 
           onClick={() => setMessages([])}
@@ -170,8 +192,7 @@ export default function TodayScreen() {
         ></div>
       )}
 
-      {/* ЧАТ И ПОЛЕ ВВОДА (fixed - прибито к низу экрана) */}
-      <div className="fixed bottom-0 left-0 right-0 w-full max-w-[400px] mx-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-gradient-to-t from-[#0a0f1c] via-[#0a0f1c]/90 to-transparent z-[9999]">
+      <div className="fixed bottom-0 left-0 right-0 w-full max-w-[95%] mx-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] to-transparent z-[9999]">
         {messages.length > 0 && (
           <div className="mb-4 max-h-60 overflow-y-auto flex flex-col gap-2 relative" style={{ scrollbarWidth: 'none' }}>
             <button 
