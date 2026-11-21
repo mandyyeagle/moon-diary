@@ -50,7 +50,6 @@ export default function TodayScreen() {
     getTip('health'), getTip('magic'), getTip('dreams'), getTip('beauty'), getTip('ritual')
   ];
 
-  // 1. ИЗМЕНЕНИЕ: Добавили textToSend, чтобы можно было отправлять текст из карточек
   const handleSend = async (textToSend) => {
     const messageText = textToSend || inputText;
     if (!messageText.trim()) return;
@@ -116,6 +115,7 @@ export default function TodayScreen() {
 
   return (
     <div className="w-full h-full relative flex flex-col overflow-hidden">
+      
       <div 
         className="flex-1 overflow-y-auto w-full px-4 pt-24 pb-32" 
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -147,7 +147,6 @@ export default function TodayScreen() {
 
         <div className="flex flex-col gap-3">
           {cards.map((card, index) => (
-            // 2. ИЗМЕНЕНИЕ: Добавили onClick, cursor-pointer и active:scale-95
             <div 
               key={index} 
               onClick={() => handleSend(`Расскажи подробнее про: ${card.title} ${card.text}`)}
@@ -162,9 +161,27 @@ export default function TodayScreen() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 w-full max-w-[400px] mx-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-gradient-to-t from-[#0a0f1c] via-[#0a0f1c]/90 to-transparent z-[9999]">
+      {/* НОВОЕ: Клик по размытому фону сворачивает чат */}
+      {messages.length > 0 && (
+        <div 
+          onClick={() => setMessages([])}
+          className="absolute inset-0 z-40 bg-[#0a0f1c]/60 backdrop-blur-md transition-opacity duration-300 cursor-pointer"
+        ></div>
+      )}
+
+      <div className="absolute bottom-0 left-0 right-0 w-full p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-gradient-to-t from-[#0a0f1c] via-[#0a0f1c]/90 to-transparent z-50">
         {messages.length > 0 && (
-          <div className="mb-4 max-h-60 overflow-y-auto flex flex-col gap-2" style={{ scrollbarWidth: 'none' }}>
+          <div className="mb-4 max-h-60 overflow-y-auto flex flex-col gap-2 relative" style={{ scrollbarWidth: 'none' }}>
+            
+            {/* НОВОЕ: Кнопка свернуть */}
+            <button 
+              onClick={() => setMessages([])}
+              className="self-center mb-2 flex items-center gap-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1 text-xs text-gray-300 hover:text-white hover:bg-white/20 transition-all"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+              свернуть
+            </button>
+
             {messages.map((msg, idx) => (
               <div key={idx} className={`p-3 rounded-2xl max-w-[85%] text-[14px] ${msg.role === 'user' ? 'bg-white/20 text-white self-end rounded-br-sm' : 'bg-[#1a2235]/90 text-gray-200 self-start rounded-bl-sm border border-white/10 backdrop-blur-md'}`} style={{ fontFamily: 'Gilroy, sans-serif' }}>
                 {msg.text}
