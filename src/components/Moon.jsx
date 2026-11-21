@@ -30,23 +30,20 @@ const Moon = ({ phase = 0.5 }) => {
       style={{ perspective: 1000 }}
     >
       
-      {/* Свечение */}
+      {/* Голубое свечение (без изменений) */}
       <div className="absolute inset-0 rounded-full shadow-[0_0_60px_20px_rgba(59,130,246,0.4)] pointer-events-none"></div>
 
-      {/* Картинка Луны с эффектом 3D-шара */}
+      {/* Картинка Луны */}
       <div className="relative w-full h-full rounded-full overflow-hidden z-10 bg-transparent flex items-center justify-center">
         <img 
           src={getMoonImage(phase)} 
           alt="Moon Phase" 
           className="w-full h-full object-contain transition-opacity duration-1000 ease-in-out"
           style={{ 
-            mixBlendMode: 'screen',
-            /* Внутренняя тень делает луну объемной */
-            filter: 'drop-shadow(inset 0 0 20px rgba(0,0,0,0.8)) drop-shadow(0 0 10px rgba(255,255,255,0.2))'
+            /* Оставляем только screen для прозрачности фона */
+            mixBlendMode: 'screen' 
           }}
         />
-        {/* Дополнительный слой тени для объема */}
-        <div className="absolute inset-0 rounded-full shadow-[inset_-10px_-10px_20px_rgba(0,0,0,0.6)] pointer-events-none"></div>
       </div>
 
     </motion.div>
