@@ -14,37 +14,32 @@ const Moon = ({ phase = 0.5 }) => {
   };
 
   return (
-    // motion.div создает эффект парения и легкого 3D-покачивания
     <motion.div 
       className="relative w-64 h-64 md:w-80 md:h-80 mx-auto flex items-center justify-center"
       animate={{ 
-        y: [0, -10, 0], // Плавает вверх-вниз на 10 пикселей
-        rotateY: [0, 15, -15, 0], // Легкое 3D-покачивание
-        rotateX: [0, -5, 5, 0]
+        y: [0, -12, 0], // Плавно парит вверх-вниз
+        scale: [1, 1.02, 1] // Легкое дыхание (увеличение)
       }}
       transition={{ 
-        duration: 8, // Один цикл длится 8 секунд
-        repeat: Infinity, // Бесконечно
+        duration: 6, 
+        repeat: Infinity, 
         ease: "easeInOut"
       }}
-      style={{ perspective: 1000 }}
     >
       
-      {/* Голубое свечение (без изменений) */}
+      {/* Голубое свечение (остается сзади) */}
       <div className="absolute inset-0 rounded-full shadow-[0_0_60px_20px_rgba(59,130,246,0.4)] pointer-events-none"></div>
 
-      {/* Картинка Луны */}
-      <div className="relative w-full h-full rounded-full overflow-hidden z-10 bg-transparent flex items-center justify-center">
-        <img 
-          src={getMoonImage(phase)} 
-          alt="Moon Phase" 
-          className="w-full h-full object-contain transition-opacity duration-1000 ease-in-out"
-          style={{ 
-            /* Оставляем только screen для прозрачности фона */
-            mixBlendMode: 'screen' 
-          }}
-        />
-      </div>
+      {/* Сама Луна (без лишних оберток и 3D) */}
+      <img 
+        src={getMoonImage(phase)} 
+        alt="Moon Phase" 
+        className="relative z-10 w-full h-full object-contain transition-opacity duration-1000 ease-in-out"
+        style={{ 
+          /* Делает черный фон прозрачным */
+          mixBlendMode: 'screen' 
+        }}
+      />
 
     </motion.div>
   );
