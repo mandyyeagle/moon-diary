@@ -90,3 +90,15 @@ html {
   height: 1px;
   background: linear-gradient(90deg, rgba(255,255,255,1), transparent);
 }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ... остальной твой код (tailwind, meteor и т.д.) ... */
