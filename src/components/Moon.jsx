@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const Moon = ({ phase = 0.5 }) => {
   const getMoonImage = (p) => {
@@ -13,19 +14,42 @@ const Moon = ({ phase = 0.5 }) => {
   };
 
   return (
-    <div className="relative w-64 h-64 md:w-80 md:h-80 mx-auto flex items-center justify-center">
-      <img 
-        src={getMoonImage(phase)} 
-        alt="Moon Phase" 
-        className="relative w-full h-full rounded-full overflow-hidden z-10 bg-transparent flex items-center justify-center duration-1000 ease-in-out"
-        style={{ 
-          /* Делает черный фон картинки прозрачным */
-          mixBlendMode: 'screen',
-          /* Свечение повторяет контур Луны, а не квадрат */
-          filter: 'drop-shadow(0 0 30px rgba(59,130,246,0.6))' 
-        }}
-      />
-    </div>
+    // motion.div создает эффект парения и легкого 3D-покачивания
+    <motion.div 
+      className="relative w-64 h-64 md:w-80 md:h-80 mx-auto flex items-center justify-center"
+      animate={{ 
+        y: [0, -10, 0], // Плавает вверх-вниз на 10 пикселей
+        rotateY: [0, 15, -15, 0], // Легкое 3D-покачивание
+        rotateX: [0, -5, 5, 0]
+      }}
+      transition={{ 
+        duration: 8, // Один цикл длится 8 секунд
+        repeat: Infinity, // Бесконечно
+        ease: "easeInOut"
+      }}
+      style={{ perspective: 1000 }}
+    >
+      
+      {/* Свечение */}
+      <div className="absolute inset-0 rounded-full shadow-[0_0_60px_20px_rgba(59,130,246,0.4)] pointer-events-none"></div>
+
+      {/* Картинка Луны с эффектом 3D-шара */}
+      <div className="relative w-full h-full rounded-full overflow-hidden z-10 bg-transparent flex items-center justify-center">
+        <img 
+          src={getMoonImage(phase)} 
+          alt="Moon Phase" 
+          className="w-full h-full object-contain transition-opacity duration-1000 ease-in-out"
+          style={{ 
+            mixBlendMode: 'screen',
+            /* Внутренняя тень делает луну объемной */
+            filter: 'drop-shadow(inset 0 0 20px rgba(0,0,0,0.8)) drop-shadow(0 0 10px rgba(255,255,255,0.2))'
+          }}
+        />
+        {/* Дополнительный слой тени для объема */}
+        <div className="absolute inset-0 rounded-full shadow-[inset_-10px_-10px_20px_rgba(0,0,0,0.6)] pointer-events-none"></div>
+      </div>
+
+    </motion.div>
   );
 };
 

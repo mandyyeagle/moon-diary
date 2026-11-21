@@ -17,7 +17,6 @@ export default function App() {
   const phase = (1 - Math.cos(phaseAngle * Math.PI / 180)) / 2;
 
   return (
-    // h-[100dvh] строго под высоту экрана телефона
     <div className="relative w-full max-w-[400px] h-[100dvh] mx-auto overflow-hidden bg-[#0a0f1c] text-white font-sans">
       
       {/* ФОН */}
@@ -50,7 +49,21 @@ export default function App() {
         </div>
       </motion.div>
 
-      {/* НАВИГАЦИЯ (fixed - прибита намертво) */}
+      {/* ПАРЯЩАЯ ЛУНА ДЛЯ ДРУГИХ ЭКРАНОВ */}
+      {activeTab !== 'today' && (
+        <motion.div
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="fixed top-1/2 left-1/2 z-50 pointer-events-none"
+        >
+          <div style={{ transform: 'translate(-50%, calc(-50% - 50px))' }}>
+            <Moon phase={phase} />
+          </div>
+        </motion.div>
+      )}
+
+      {/* НАВИГАЦИЯ (fixed) */}
       <div className="fixed top-0 left-0 right-0 w-full max-w-[400px] mx-auto z-50 bg-gradient-to-b from-[#0a0f1c] via-[#0a0f1c]/90 to-transparent pb-4 pt-2">
         <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
