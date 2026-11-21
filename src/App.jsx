@@ -16,6 +16,16 @@ export default function App() {
   const phaseAngle = MoonPhase(today);
   const phase = (1 - Math.cos(phaseAngle * Math.PI / 180)) / 2;
 
+  // Функция обработки свайпа
+  const handleDragEnd = (event, info) => {
+    const swipe = info.offset.x;
+    if (swipe < -50 && currentIndex < tabs.length - 1) {
+      setActiveTab(tabs[currentIndex + 1]); // Свайп влево
+    } else if (swipe > 50 && currentIndex > 0) {
+      setActiveTab(tabs[currentIndex - 1]); // Свайп вправо
+    }
+  };
+
   return (
     <div className="relative w-full max-w-[400px] h-[100dvh] mx-auto overflow-hidden bg-[#0a0f1c] text-white font-sans">
       
@@ -31,12 +41,16 @@ export default function App() {
       <div className="meteor top-[10%] right-[-10%]" style={{ animationDelay: '0s' }}></div>
       <div className="meteor top-[40%] right-[-20%]" style={{ animationDelay: '8s' }}></div>
 
-      {/* ГОРИЗОНТАЛЬНЫЙ ПРОКРУТ ЭКРАНОВ */}
+      {/* ГОРИЗОНТАЛЬНЫЙ ПРОКРУТ (Свайпы) */}
       <motion.div
-        className="relative w-full h-full z-5 flex"
+        className="relative w-full h-full z-5 flex cursor-grab active:cursor-grabbing"
         style={{ width: '300vw' }}
         animate={{ x: `-${currentIndex * 100}vw` }}
-        transition={{ duration: 1.5, ease: "easeInOut" }}
+        transition={{ duration: 0.8, ease: "easeInOut" }}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.2}
+        onDragEnd={handleDragEnd}
       >
         <div className="w-[33.333%] h-full relative">
            <TodayScreen />
