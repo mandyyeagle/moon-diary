@@ -8,7 +8,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
         'RqUID': req.headers['rquid'] || crypto.randomUUID(),
-        'Authorization': `Basic ${process.env.VITE_GIGACHAT_CLIENT_ID}`
+        'Authorization': `Basic ${process.env.GIGACHAT_CLIENT_ID}`
       },
       body: 'scope=GIGACHAT_API_PERS'
     });

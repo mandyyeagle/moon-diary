@@ -79,13 +79,14 @@ export default function TodayScreen() {
 Контекст: дата ${formattedDate}, фаза Луны ${astroData.phaseText}, знак зодиака ${astroData.zodiacRu}, ${astroData.lunarDay}-й лунный день. Совет дня: ${currentAdvice}.
 Пользователь спрашивает: ${messageText}`;
 
+      // 1. Получаем токен через нашу серверную функцию
       const authResponse = await fetch('/api/oauth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json',
-          'RqUID': crypto.randomUUID(),
-          'Authorization': `Basic ${import.meta.env.VITE_GIGACHAT_CLIENT_ID}`
+          'RqUID': crypto.randomUUID()
+          // Убрали заголовок Authorization! Теперь ключ добавляется на сервере Vercel
         },
         body: 'scope=GIGACHAT_API_PERS'
       });
@@ -94,6 +95,7 @@ export default function TodayScreen() {
       const accessToken = authData.access_token;
       if (!accessToken) throw new Error("Нет токена");
 
+      // 2. Отправляем запрос в чат
       const response = await fetch('/api/gigachat', {
         method: 'POST',
         headers: {
