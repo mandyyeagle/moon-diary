@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Gilroy';
+  src: local('Gilroy'), url('/fonts/Gilroy/Gilroy-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background-color: #0a0f1c; /* Темный фон для всего сайта */
+  color: white;
+  font-family: 'Gilroy', 'Manrope', sans-serif;
+  position: fixed;
+  width: 100%;
+}
+
+/* Анимация кометы */
+@keyframes shoot {
+  0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; }
+  100% { transform: translateX(-1000px) translateY(500px) rotate(-45deg); opacity: 0; }
+}
+
+.meteor {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.1), 0 0 0 4px rgba(255,255,255,0.1), 0 0 15px 2px rgba(255,255,255,1);
+  animation: shoot 16s linear infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.meteor::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,255,255,1), transparent);
+}
+
+/* Скрываем скроллбар */
+::-webkit-scrollbar {
+  display: none;
+}
