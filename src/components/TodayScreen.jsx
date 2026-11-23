@@ -8,13 +8,11 @@ export default function TodayScreen() {
   const today = new Date();
   const scrollRef = useRef(null);
   
-  // Отслеживаем скролл внутри контейнера
   const { scrollYProgress } = useScroll({
     container: scrollRef,
     offset: ["start start", "end start"]
   });
 
-  // Применяем трансформации: скроллим вниз -> луна уменьшается и уезжает вверх
   const moonScale = useTransform(scrollYProgress, [0, 0.4], [1, 0.5]);
   const moonY = useTransform(scrollYProgress, [0, 0.4], [0, -100]);
   const moonOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
@@ -79,32 +77,27 @@ export default function TodayScreen() {
 Контекст: дата ${formattedDate}, фаза Луны ${astroData.phaseText}, знак зодиака ${astroData.zodiacRu}, ${astroData.lunarDay}-й лунный день. Совет дня: ${currentAdvice}.
 Пользователь спрашивает: ${messageText}`;
 
-      // 1. Получаем токен через прокси (прямо к Сберу)
+      // 1. Получаем "токен" (заглушку) от нашей серверной функции
       const authResponse = await fetch('/api/oauth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json',
-          'RqUID': crypto.randomUUID(),
-          'Authorization': `Basic ${import.meta.env.VITE_GIGACHAT_CLIENT_ID}`
+          'RqUID': crypto.randomUUID()
         },
         body: 'scope=GIGACHAT_API_PERS'
       });
+      await authResponse.json(); // Просто читаем, чтобы не было ошибки
 
-      const authData = await authResponse.json();
-      const accessToken = authData.access_token;
-      if (!accessToken) throw new Error("Нет токена");
-
-      // 2. Отправляем запрос в чат
+      // 2. Отправляем запрос в чат (наша функция gigachat.js теперь работает с Groq)
       const response = await fetch('/api/gigachat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
+          'Authorization': `Bearer dummy-token` // Заглушка, Groq использует ключ из сервера
         },
         body: JSON.stringify({
-          model: 'GigaChat',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: messageText }
@@ -131,17 +124,16 @@ export default function TodayScreen() {
   return (
     <div className="w-full h-full relative overflow-hidden">
       
-      {/* Привязываем ref для отслеживания скролла */}
+      {/* Контент (Луна, карточки) */}
       <div 
         ref={scrollRef}
-        className="w-full h-full overflow-y-auto px-4 pt-24 pb-32" 
+        className="w-full h-full overflow-y-auto px-4 pt-24 pb-40" 
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         <div className="text-center mt-0 mb-0 text-white text-[20px]" style={{ fontFamily: 'Gilroy, sans-serif' }}>
           {formattedDate}
         </div>
 
-        {/* Анимированная обертка вокруг Луны */}
         <motion.div 
           style={{ scale: moonScale, y: moonY, opacity: moonOpacity }}
           className="origin-center"
@@ -149,7 +141,6 @@ export default function TodayScreen() {
           <Moon />
         </motion.div>
 
-        {/* Остальной контент (он будет прокручиваться за Луной) */}
         <div className="relative z-20">
           <div className="flex items-center justify-center gap-3 mt-0 mb-2">
             <span className="text-3xl leading-none select-none">🌙</span>
@@ -187,6 +178,7 @@ export default function TodayScreen() {
         </div>
       </div>
 
+      {/* Затенение фона, когда открыт чат */}
       {messages.length > 0 && (
         <div 
           onClick={() => setMessages([])}
@@ -194,49 +186,58 @@ export default function TodayScreen() {
         ></div>
       )}
 
-      <div className="fixed bottom-0 left-0 right-0 w-full max-w-[95%] mx-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] to-transparent z-[9999]">
-        {messages.length > 0 && (
-          <div className="mb-4 max-h-60 overflow-y-auto flex flex-col gap-2 relative" style={{ scrollbarWidth: 'none' }}>
+      {/* ЧАТ И ПОЛЕ ВВОДА */}
+      <div className="fixed bottom-0 left-0 right-0 w-full max-w-[95%] md:max-w-[600px] mx-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] z-[9999] pointer-events-none">
+        
+        <div className="pointer-events-auto flex flex-col justify-end min-h-[50vh]">
+          
+          {messages.length > 0 && (
+            <div className="mb-4 overflow-y-auto flex flex-col gap-2 relative flex-grow" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              
+              {/* Кнопка свернуть (прилипает к верху переписки) */}
+              <div className="sticky top-0 z-10 flex justify-center py-2 bg-gradient-to-b from-[#0a0f1c]/80 to-transparent">
+                <button 
+                  onClick={() => setMessages([])}
+                  className="flex items-center gap-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1 text-xs text-gray-300 hover:text-white hover:bg-white/20 transition-all"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+                  свернуть
+                </button>
+              </div>
+
+              {messages.map((msg, idx) => (
+                <div key={idx} className={`p-3 rounded-2xl max-w-[85%] text-[14px] ${msg.role === 'user' ? 'bg-white/20 text-white self-end rounded-br-sm' : 'bg-[#1a2235]/90 text-gray-200 self-start rounded-bl-sm border border-white/10 backdrop-blur-md'}`} style={{ fontFamily: 'Gilroy, sans-serif' }}>
+                  {msg.text}
+                </div>
+              ))}
+              {isTyping && (
+                <div className="p-3 rounded-2xl bg-[#1a2235]/90 text-gray-400 self-start rounded-bl-sm border border-white/10 backdrop-blur-md text-[14px]">
+                  Муун печатает...
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="relative mt-auto">
+            <input 
+              type="text" 
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="спросить у Муун..." 
+              className="w-full bg-white/10 backdrop-blur-xl border border-white/30 shadow-[0_4px_30px_rgba(0,0,0,0.1)] rounded-full py-3 px-5 pr-12 text-white placeholder-gray-300 focus:outline-none focus:border-white/60 focus:bg-white/15 transition-all"
+              style={{ fontFamily: 'Gilroy, sans-serif' }}
+            />
             <button 
-              onClick={() => setMessages([])}
-              className="self-center mb-2 flex items-center gap-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1 text-xs text-gray-300 hover:text-white hover:bg-white/20 transition-all"
+              onClick={() => handleSend()}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
-              свернуть
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
             </button>
-
-            {messages.map((msg, idx) => (
-              <div key={idx} className={`p-3 rounded-2xl max-w-[85%] text-[14px] ${msg.role === 'user' ? 'bg-white/20 text-white self-end rounded-br-sm' : 'bg-[#1a2235]/90 text-gray-200 self-start rounded-bl-sm border border-white/10 backdrop-blur-md'}`} style={{ fontFamily: 'Gilroy, sans-serif' }}>
-                {msg.text}
-              </div>
-            ))}
-            {isTyping && (
-              <div className="p-3 rounded-2xl bg-[#1a2235]/90 text-gray-400 self-start rounded-bl-sm border border-white/10 backdrop-blur-md text-[14px]">
-                Муун печатает...
-              </div>
-            )}
           </div>
-        )}
-
-        <div className="relative">
-          <input 
-            type="text" 
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="спросить у Муун..." 
-            className="w-full bg-white/10 backdrop-blur-xl border border-white/30 shadow-[0_4px_30px_rgba(0,0,0,0.1)] rounded-full py-3 px-5 pr-12 text-white placeholder-gray-300 focus:outline-none focus:border-white/60 focus:bg-white/15 transition-all"
-            style={{ fontFamily: 'Gilroy, sans-serif' }}
-          />
-          <button 
-            onClick={() => handleSend()}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"></line>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
-          </button>
         </div>
       </div>
     </div>
