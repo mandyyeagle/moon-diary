@@ -3,7 +3,7 @@ export default async function handler(req, res) {
 
   try {
     console.log('Ключ виден серверу:', !!process.env.GIGACHAT_CLIENT_ID); 
-    const response = await fetch('https://ngw.devices.sberbank.ru:9443/api/v2/oauth', {
+    const response = await fetch(''https://api.giga.chat/api/v2/oauth', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
