@@ -12,7 +12,7 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile', // Отличная бесплатная модель
+        model: 'openai/gpt-oss-120b', // Отличная бесплатная модель
         messages: req.body.messages,
         temperature: 0.7
       })

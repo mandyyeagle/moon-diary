@@ -77,25 +77,12 @@ export default function TodayScreen() {
 Контекст: дата ${formattedDate}, фаза Луны ${astroData.phaseText}, знак зодиака ${astroData.zodiacRu}, ${astroData.lunarDay}-й лунный день. Совет дня: ${currentAdvice}.
 Пользователь спрашивает: ${messageText}`;
 
-      // 1. Получаем "токен" (заглушку) от нашей серверной функции
-      const authResponse = await fetch('/api/oauth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json',
-          'RqUID': crypto.randomUUID()
-        },
-        body: 'scope=GIGACHAT_API_PERS'
-      });
-      await authResponse.json(); // Просто читаем, чтобы не было ошибки
-
-      // 2. Отправляем запрос в чат (наша функция gigachat.js теперь работает с Groq)
       const response = await fetch('/api/gigachat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Authorization': `Bearer dummy-token` // Заглушка, Groq использует ключ из сервера
+          'Authorization': `Bearer dummy-token`
         },
         body: JSON.stringify({
           messages: [
@@ -186,44 +173,37 @@ export default function TodayScreen() {
         ></div>
       )}
 
-            {/* ЧАТ И ПОЛЕ ВВОДА */}
-      <div className="fixed bottom-0 left-0 right-0 w-full max-w-[95%] md:max-w-[600px] mx-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] z-[9999] pointer-events-none">
-        
-        {/* Контейнер чата, который поднимается вверх */}
-        <div className="pointer-events-auto flex flex-col justify-end min-h-[50vh]">
+      {/* ЧАТ (Блокировка поверх всего, но ниже навигации) */}
+      {messages.length > 0 && (
+        <div className="fixed top-24 bottom-0 left-0 right-0 z-40 flex flex-col w-full max-w-[95%] md:max-w-[600px] mx-auto p-4 pointer-events-none">
           
-          {messages.length > 0 && (
-            <div className="flex flex-col flex-grow relative">
-              
-              {/* Кнопка "свернуть" - зафиксирована в самом верху области чата */}
-              <div className="flex justify-center pb-4 pt-2">
-                <button 
-                  onClick={() => setMessages([])}
-                  className="flex items-center gap-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1 text-xs text-gray-300 hover:text-white hover:bg-white/20 transition-all"
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
-                  свернуть
-                </button>
-              </div>
+          {/* Кнопка свернуть */}
+          <div className="flex justify-center mb-4 pointer-events-auto">
+            <button 
+              onClick={() => setMessages([])}
+              className="flex items-center gap-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1 text-xs text-gray-300 hover:text-white hover:bg-white/20 transition-all"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+              свернуть
+            </button>
+          </div>
 
-              {/* Сама переписка */}
-              <div className="overflow-y-auto flex flex-col gap-2 mb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                {messages.map((msg, idx) => (
-                  <div key={idx} className={`p-3 rounded-2xl max-w-[85%] text-[14px] ${msg.role === 'user' ? 'bg-white/20 text-white self-end rounded-br-sm' : 'bg-[#1a2235]/90 text-gray-200 self-start rounded-bl-sm border border-white/10 backdrop-blur-md'}`} style={{ fontFamily: 'Gilroy, sans-serif' }}>
-                    {msg.text}
-                  </div>
-                ))}
-                {isTyping && (
-                  <div className="p-3 rounded-2xl bg-[#1a2235]/90 text-gray-400 self-start rounded-bl-sm border border-white/10 backdrop-blur-md text-[14px]">
-                    Муун печатает...
-                  </div>
-                )}
+          {/* Скролл сообщений */}
+          <div className="flex-1 overflow-y-auto flex flex-col gap-2 mb-4 pointer-events-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`p-3 rounded-2xl max-w-[85%] text-[14px] ${msg.role === 'user' ? 'bg-white/20 text-white self-end rounded-br-sm' : 'bg-[#1a2235]/90 text-gray-200 self-start rounded-bl-sm border border-white/10 backdrop-blur-md'}`} style={{ fontFamily: 'Gilroy, sans-serif' }}>
+                {msg.text}
               </div>
-            </div>
-          )}
+            ))}
+            {isTyping && (
+              <div className="p-3 rounded-2xl bg-[#1a2235]/90 text-gray-400 self-start rounded-bl-sm border border-white/10 backdrop-blur-md text-[14px]">
+                Муун печатает...
+              </div>
+            )}
+          </div>
 
           {/* Поле ввода */}
-          <div className="relative mt-auto">
+          <div className="relative pointer-events-auto w-full">
             <input 
               type="text" 
               value={inputText}
@@ -244,7 +224,32 @@ export default function TodayScreen() {
             </button>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Поле ввода, когда чат ЗАКРЫТ (чтобы оно всегда было внизу) */}
+      {messages.length === 0 && (
+        <div className="fixed bottom-0 left-0 right-0 w-full max-w-[95%] md:max-w-[600px] mx-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] z-50">
+          <div className="relative">
+            <input 
+              type="text" 
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="спросить у Муун..." 
+              className="w-full bg-white/10 backdrop-blur-xl border border-white/30 shadow-[0_4px_30px_rgba(0,0,0,0.1)] rounded-full py-3 px-5 pr-12 text-white placeholder-gray-300 focus:outline-none focus:border-white/60 focus:bg-white/15 transition-all"
+              style={{ fontFamily: 'Gilroy, sans-serif' }}
+            />
+            <button 
+              onClick={() => handleSend()}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
