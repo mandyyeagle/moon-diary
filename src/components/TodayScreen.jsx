@@ -175,7 +175,7 @@ export default function TodayScreen() {
 
       {/* ЧАТ (Блокировка поверх всего, но ниже навигации) */}
       {messages.length > 0 && (
-        <div className="fixed top-24 bottom-0 left-0 right-0 z-40 flex flex-col w-full max-w-[95%] md:max-w-[600px] mx-auto p-4 pointer-events-none">
+        <div className="absolute bottom-0 left-0 right-0 z-40 flex flex-col w-full max-w-[95%] md:max-w-[600px] mx-auto p-4 pointer-events-none">
           
           {/* Кнопка свернуть */}
           <div className="flex justify-center mb-4 pointer-events-auto">
@@ -228,7 +228,7 @@ export default function TodayScreen() {
 
       {/* Поле ввода, когда чат ЗАКРЫТ (чтобы оно всегда было внизу) */}
       {messages.length === 0 && (
-        <div className="fixed bottom-0 left-0 right-0 w-full max-w-[95%] md:max-w-[600px] mx-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] z-50">
+        <div className="absolute bottom-0 left-0 right-0 w-full max-w-[95%] md:max-w-[600px] mx-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] z-50">
           <div className="relative">
             <input 
               type="text" 
