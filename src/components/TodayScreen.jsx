@@ -186,16 +186,17 @@ export default function TodayScreen() {
         ></div>
       )}
 
-      {/* ЧАТ И ПОЛЕ ВВОДА */}
+            {/* ЧАТ И ПОЛЕ ВВОДА */}
       <div className="fixed bottom-0 left-0 right-0 w-full max-w-[95%] md:max-w-[600px] mx-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] z-[9999] pointer-events-none">
         
+        {/* Контейнер чата, который поднимается вверх */}
         <div className="pointer-events-auto flex flex-col justify-end min-h-[50vh]">
           
           {messages.length > 0 && (
-            <div className="mb-4 overflow-y-auto flex flex-col gap-2 relative flex-grow" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <div className="flex flex-col flex-grow relative">
               
-              {/* Кнопка свернуть (прилипает к верху переписки) */}
-              <div className="sticky top-0 z-10 flex justify-center py-2 bg-gradient-to-b from-[#0a0f1c]/80 to-transparent">
+              {/* Кнопка "свернуть" - зафиксирована в самом верху области чата */}
+              <div className="flex justify-center pb-4 pt-2">
                 <button 
                   onClick={() => setMessages([])}
                   className="flex items-center gap-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1 text-xs text-gray-300 hover:text-white hover:bg-white/20 transition-all"
@@ -205,19 +206,23 @@ export default function TodayScreen() {
                 </button>
               </div>
 
-              {messages.map((msg, idx) => (
-                <div key={idx} className={`p-3 rounded-2xl max-w-[85%] text-[14px] ${msg.role === 'user' ? 'bg-white/20 text-white self-end rounded-br-sm' : 'bg-[#1a2235]/90 text-gray-200 self-start rounded-bl-sm border border-white/10 backdrop-blur-md'}`} style={{ fontFamily: 'Gilroy, sans-serif' }}>
-                  {msg.text}
-                </div>
-              ))}
-              {isTyping && (
-                <div className="p-3 rounded-2xl bg-[#1a2235]/90 text-gray-400 self-start rounded-bl-sm border border-white/10 backdrop-blur-md text-[14px]">
-                  Муун печатает...
-                </div>
-              )}
+              {/* Сама переписка */}
+              <div className="overflow-y-auto flex flex-col gap-2 mb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {messages.map((msg, idx) => (
+                  <div key={idx} className={`p-3 rounded-2xl max-w-[85%] text-[14px] ${msg.role === 'user' ? 'bg-white/20 text-white self-end rounded-br-sm' : 'bg-[#1a2235]/90 text-gray-200 self-start rounded-bl-sm border border-white/10 backdrop-blur-md'}`} style={{ fontFamily: 'Gilroy, sans-serif' }}>
+                    {msg.text}
+                  </div>
+                ))}
+                {isTyping && (
+                  <div className="p-3 rounded-2xl bg-[#1a2235]/90 text-gray-400 self-start rounded-bl-sm border border-white/10 backdrop-blur-md text-[14px]">
+                    Муун печатает...
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
+          {/* Поле ввода */}
           <div className="relative mt-auto">
             <input 
               type="text" 
