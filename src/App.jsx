@@ -23,11 +23,22 @@ export default function App() {
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden bg-[#0a0f1c] text-white font-sans">
       
-      {/* ФОН (двигается отдельно) */}
+               {/* ФОН (двигается отдельно и медленно надвигается) */}
       <motion.div 
-        className="absolute inset-0 z-0 bg-[url('/bg.jpg')] bg-cover bg-center"
-        animate={{ x: `-${currentIndex * 100}vw` }}
-        transition={{ duration: 2.5, ease: [0.16, 1, 0.3, 1] }}
+        className="absolute inset-0 z-0 bg-[url('/bg-new.jpg')] bg-cover bg-center"
+        animate={{ 
+          x: `-${currentIndex * 100}vw`, 
+          scale: [1, 1.5] // Фон увеличится с 100% до 150% и начнет заново
+        }}
+        transition={{ 
+          x: { duration: 2.5, ease: [0.16, 1, 0.3, 1] },
+          scale: { 
+            duration: 180, // 180 секунд (2 минуты) на одно полное увеличение
+            repeat: Infinity, 
+            ease: "linear", // "linear" делает движение равномерным, без замедлений
+            repeatType: "loop" // Зацикливаем (в конце резко сбросится в начало, но так как увеличение долгое, это будет незаметно)
+          } 
+        }}
         style={{ width: '300vw' }} 
       />
 
