@@ -6,6 +6,7 @@ import CalendarScreen from './components/CalendarScreen';
 import Navigation from './components/BottomNav';
 import Moon from './components/Moon';
 import { MoonPhase } from 'astronomy-engine';
+import { Analytics } from '@vercel/analytics/react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('today');
@@ -94,8 +95,10 @@ export default function App() {
 
       {/* Навигация всегда поверх экранного трека. */}
       <div className="absolute top-0 left-0 w-full z-[60]">
-  <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+   <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
+
+      <Analytics />
     </div>
   );
 }
