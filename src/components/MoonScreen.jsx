@@ -227,7 +227,7 @@ export default function MoonScreen({ onSelectTopic }) {
               className="w-full shrink-0 snap-center"
             >
 
-              {/* Карточка с автоматической высотой */}
+              {/* Карточка автоматически растёт вниз */}
               <div
                 className="relative w-full min-h-[112px] rounded-full"
                 style={{
@@ -235,7 +235,7 @@ export default function MoonScreen({ onSelectTopic }) {
                 }}
               >
 
-                {/* Стеклянный фон */}
+                {/* Стеклянный фон карточки */}
                 <div
                   className="absolute inset-0 rounded-full pointer-events-none"
                   style={{
@@ -248,11 +248,11 @@ export default function MoonScreen({ onSelectTopic }) {
                   }}
                 />
 
-                {/* Левая область МУУН */}
+                {/* МУУН — закреплена слева */}
                 <div
                   className="absolute left-0 top-0 bottom-0 z-20 pointer-events-none"
                   style={{
-                    width: '36%',
+                    width: 'clamp(110px, 12vw, 145px)',
                   }}
                 >
                   <img
@@ -272,11 +272,11 @@ export default function MoonScreen({ onSelectTopic }) {
                   />
                 </div>
 
-                {/* Текстовая область: 4 px от левой зоны */}
+                {/* Текст — ровно 4 px после области МУУН */}
                 <div
-                  className="relative z-10 grid min-w-0"
+                  className="relative z-10 flex flex-col justify-center min-w-0"
                   style={{
-                    marginLeft: 'calc(36% + 4px)',
+                    marginLeft: 'calc(clamp(110px, 12vw, 145px) + 4px)',
                     padding: '12px 14px 12px 0',
                     gap: '4px',
                   }}
