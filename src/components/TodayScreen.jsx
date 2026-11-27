@@ -23,9 +23,38 @@ export default function TodayScreen({
   const [isTyping, setIsTyping] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [scrollTop, setScrollTop] = useState(0);
+  const [keyboardInset, setKeyboardInset] = useState(0);
 
   const messagesEndRef = useRef(null);
   const lastPromptRef = useRef(null);
+
+  // Отслеживание высоты видимой области при открытии клавиатуры.
+  useEffect(() => {
+    const viewport = window.visualViewport;
+
+    if (!viewport) return;
+
+    const updateKeyboardInset = () => {
+      const keyboardHeight = Math.max(
+        0,
+        window.innerHeight - viewport.height - viewport.offsetTop
+      );
+
+      setKeyboardInset(keyboardHeight);
+    };
+
+    updateKeyboardInset();
+
+    viewport.addEventListener('resize', updateKeyboardInset);
+    viewport.addEventListener('scroll', updateKeyboardInset);
+    window.addEventListener('resize', updateKeyboardInset);
+
+    return () => {
+      viewport.removeEventListener('resize', updateKeyboardInset);
+      viewport.removeEventListener('scroll', updateKeyboardInset);
+      window.removeEventListener('resize', updateKeyboardInset);
+    };
+  }, []);
 
   // Прокрутка переписки к последнему сообщению.
   useEffect(() => {
@@ -243,8 +272,10 @@ export default function TodayScreen({
     }
   };
 
+  // Общая позиция нижнего поля с учётом клавиатуры.
+  const keyboardAwareBottom = `${keyboardInset}px`;
+
   // В режиме overlay не показываем основной экран.
-  // Компонент остаётся смонтированным, поэтому история сохраняется.
   if (overlayMode && !isChatOpen) {
     return null;
   }
@@ -268,8 +299,7 @@ export default function TodayScreen({
       }
     >
 
-      {/* Основной экран «сегодня».
-          В overlayMode он полностью скрыт. */}
+      {/* Основной экран «сегодня» */}
       {!overlayMode && (
         <div
           className="flex-1 overflow-y-auto w-full px-4 pt-24 pb-32"
@@ -397,9 +427,12 @@ export default function TodayScreen({
         <div
           className={
             overlayMode
-              ? 'fixed inset-x-0 top-[76px] bottom-0 z-[55] flex flex-col px-4 pointer-events-none'
-              : 'absolute inset-x-0 top-[76px] bottom-0 z-[55] flex flex-col px-4 pointer-events-none'
+              ? 'fixed inset-x-0 top-[76px] z-[55] flex flex-col px-4 pointer-events-none'
+              : 'absolute inset-x-0 top-[76px] z-[55] flex flex-col px-4 pointer-events-none'
           }
+          style={{
+            bottom: keyboardAwareBottom,
+          }}
         >
 
           {/* Кнопка сворачивания */}
@@ -454,8 +487,13 @@ export default function TodayScreen({
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Поле отправки сообщения */}
-          <div className="shrink-0 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pointer-events-auto">
+          {/* Поле отправки сообщения — поднимается над клавиатурой */}
+          <div
+            className="shrink-0 pt-3 pb-3 pointer-events-auto"
+            style={{
+              paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+            }}
+          >
             <div className="relative">
               <input
                 type="text"
@@ -472,6 +510,7 @@ export default function TodayScreen({
               />
 
               <button
+                type="button"
                 onClick={() => handleSend()}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
               >
@@ -496,7 +535,13 @@ export default function TodayScreen({
 
       {/* Поле ввода на основном экране в свёрнутом состоянии */}
       {!overlayMode && !isChatOpen && (
-        <div className="absolute bottom-0 left-0 right-0 w-full p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-gradient-to-t from-[#0a0f1c] via-[#0a0f1c]/90 to-transparent z-50">
+        <div
+          className="absolute bottom-0 left-0 right-0 w-full p-4 bg-gradient-to-t from-[#0a0f1c] via-[#0a0f1c]/90 to-transparent z-50"
+          style={{
+            bottom: keyboardAwareBottom,
+            paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+          }}
+        >
           <div className="relative">
             <input
               type="text"
