@@ -84,7 +84,7 @@ export default function App() {
       <motion.div
         className="absolute top-0 left-[-20vw] z-0 h-full w-[140vw] pointer-events-none"
         animate={{
-          x: ['0vw', '-20vw'],
+          x: ['0vw', '-50vw'],
         }}
         transition={{
           duration: 180,
