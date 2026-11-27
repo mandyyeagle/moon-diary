@@ -87,7 +87,9 @@ const topics = [
   { icon: '✨', title: 'личное развитие' },
 ];
 
-// Номер календарного дня.
+const CHARACTER_WIDTH = 140;
+const CHARACTER_GAP = 4;
+
 const getDayNumber = () => {
   const now = new Date();
   const startOfYear = new Date(now.getFullYear(), 0, 0);
@@ -221,7 +223,7 @@ export default function MoonScreen({ onSelectTopic }) {
           onTouchMove={handleCarouselTouch}
           onTouchEnd={handleCarouselTouch}
         >
-          {dailyCharacters.map((character, index) => (
+          {dailyCharacters.map((character) => (
             <div
               key={character.image}
               className="w-full shrink-0 snap-center"
@@ -235,7 +237,7 @@ export default function MoonScreen({ onSelectTopic }) {
                 }}
               >
 
-                {/* Стеклянный фон карточки */}
+                {/* Стеклянный фон */}
                 <div
                   className="absolute inset-0 rounded-full pointer-events-none"
                   style={{
@@ -248,11 +250,11 @@ export default function MoonScreen({ onSelectTopic }) {
                   }}
                 />
 
-                {/* МУУН — закреплена слева */}
+                {/* Отдельная область персонажа */}
                 <div
                   className="absolute left-0 top-0 bottom-0 z-20 pointer-events-none"
                   style={{
-                    width: 'clamp(110px, 12vw, 145px)',
+                    width: `${CHARACTER_WIDTH}px`,
                   }}
                 >
                   <img
@@ -263,8 +265,8 @@ export default function MoonScreen({ onSelectTopic }) {
                       position: 'absolute',
                       left: 0,
                       bottom: 0,
+                      width: `${CHARACTER_WIDTH}px`,
                       height: '135px',
-                      width: 'auto',
                       maxWidth: 'none',
                       objectFit: 'contain',
                       objectPosition: 'left bottom',
@@ -272,11 +274,11 @@ export default function MoonScreen({ onSelectTopic }) {
                   />
                 </div>
 
-                {/* Текст — ровно 4 px после области МУУН */}
+                {/* Текст начинается через 4 px после области МУУН */}
                 <div
                   className="relative z-10 flex flex-col justify-center min-w-0"
                   style={{
-                    marginLeft: 'calc(clamp(110px, 12vw, 145px) + 4px)',
+                    marginLeft: `${CHARACTER_WIDTH + CHARACTER_GAP}px`,
                     padding: '12px 14px 12px 0',
                     gap: '4px',
                   }}
