@@ -242,18 +242,34 @@ ${promptText}
                       src={`/moon/characters/${card.image}`}
                       alt={`муун — ${card.topic}`}
                       draggable="false"
+                      loading="eager"
+                      decoding="async"
+                      onLoad={(event) => {
+                        event.currentTarget.style.opacity = '1';
+                        event.currentTarget.style.visibility = 'visible';
+                      }}
                       onError={(event) => {
-                        event.currentTarget.style.opacity = '0';
+                        console.error(
+                          'Не удалось загрузить изображение МУУН:',
+                          event.currentTarget.src
+                        );
+                        event.currentTarget.style.visibility = 'visible';
+                        event.currentTarget.style.opacity = '1';
                       }}
                       style={{
+                        display: 'block',
                         position: 'absolute',
                         left: 0,
                         bottom: 0,
+                        zIndex: 1,
                         width: `${CHARACTER_WIDTH}px`,
                         height: '135px',
                         maxWidth: 'none',
                         objectFit: 'contain',
                         objectPosition: 'left bottom',
+                        opacity: 1,
+                        visibility: 'visible',
+                        pointerEvents: 'none',
                       }}
                     />
                   </div>
