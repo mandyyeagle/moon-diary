@@ -7,7 +7,6 @@ import {
   MakeTime,
   EclipticGeoMoon,
 } from 'astronomy-engine';
-import Moon from './Moon';
 import { tipsData } from '../data/dailyTips';
 
 export default function TodayScreen({
@@ -80,10 +79,34 @@ export default function TodayScreen({
       const time = MakeTime(today);
       const phaseAngle = MoonPhase(today);
 
-      const phase =
-        (1 - Math.cos(phaseAngle * Math.PI / 180)) / 2;
+      const normalizedPhaseAngle =
+        ((phaseAngle % 360) + 360) % 360;
 
-      const isWaxing = phaseAngle < 180;
+      const phase =
+        (1 - Math.cos(normalizedPhaseAngle * Math.PI / 180)) / 2;
+
+      // Выбираем ближайшую из 8 фаз по углу лунной фазы.
+      let phaseImage;
+
+      if (normalizedPhaseAngle < 22.5 || normalizedPhaseAngle >= 337.5) {
+        phaseImage = 'new';
+      } else if (normalizedPhaseAngle < 67.5) {
+        phaseImage = 'waxing_crescent';
+      } else if (normalizedPhaseAngle < 112.5) {
+        phaseImage = 'first_quarter';
+      } else if (normalizedPhaseAngle < 157.5) {
+        phaseImage = 'waxing_gibbous';
+      } else if (normalizedPhaseAngle < 202.5) {
+        phaseImage = 'full';
+      } else if (normalizedPhaseAngle < 247.5) {
+        phaseImage = 'waning_gibbous';
+      } else if (normalizedPhaseAngle < 292.5) {
+        phaseImage = 'last_quarter';
+      } else {
+        phaseImage = 'waning_crescent';
+      }
+
+      const isWaxing = normalizedPhaseAngle < 180;
 
       const prevNewMoon = SearchMoonPhase(
         0,
@@ -130,6 +153,7 @@ export default function TodayScreen({
 
       return {
         phase,
+        phaseImage,
         phaseText: isWaxing ? 'растущая' : 'убывающая',
         lunarDay,
         zodiacRu: zodiacNamesRu[zodiacIndex] || 'овен',
@@ -140,6 +164,7 @@ export default function TodayScreen({
 
       return {
         phase: 0.5,
+        phaseImage: 'full',
         phaseText: 'растущая',
         lunarDay: 15,
         zodiacRu: 'лев',
@@ -328,7 +353,12 @@ export default function TodayScreen({
               ease: 'easeOut',
             }}
           >
-            <Moon phase={astroData.phase} />
+            <img
+              src={`/moon_phases/${astroData.phaseImage}.png`}
+              alt={`фаза Луны: ${astroData.phaseImage}`}
+              draggable="false"
+              className="block mx-auto w-[min(72vw,360px)] h-auto object-contain select-none pointer-events-none"
+            />
           </motion.div>
 
           <div className="flex items-center justify-center gap-3 mt-0 mb-2">

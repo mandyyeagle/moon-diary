@@ -1,214 +1,198 @@
-
-import React, { useState, useRef } from 'react';
-
-const dailyCharacters = [
-  {
-    image: 'moon_book.png',
-    title: 'время для новых знаний',
-    tips: [
-      'узнай что-то новое сегодня. даже небольшое открытие может изменить твой взгляд на привычные вещи.',
-      'выдели 15 минут на то, что давно хотела освоить. маленькие шаги тоже ведут к большим результатам.',
-      'посмотри на привычную задачу с другой стороны. сегодня любопытство может привести к интересному открытию.',
-      'вернись к книге, курсу или идее, которую когда-то оставила. возможно, сейчас самое время продолжить.',
-      'не стремись узнать всё сразу. выбери одну тему и погрузись в неё с удовольствием.',
-      'задай себе вопрос, на который давно хотела найти ответ. начни с поиска, а не с сомнений.',
-      'поделись своими знаниями с кем-нибудь. иногда, объясняя другим, мы открываем новое для себя.',
-    ],
-  },
-  {
-    image: 'moon_declutter.png',
-    title: 'порядок начинается с малого',
-    tips: [
-      'освободи немного пространства вокруг себя. иногда порядок снаружи помогает услышать себя внутри.',
-      'выбери одну небольшую зону и наведи в ней порядок. не нужно переделывать всё сразу.',
-      'отпусти вещи, которыми давно не пользуешься. освободи место для чего-то нового.',
-      'разбери накопившиеся дела. запиши три главных и не пытайся решить всё за один день.',
-      'попробуй сказать «нет» лишнему — вещам, задачам и обязательствам.',
-      'убери то, что отвлекает внимание. пусть вокруг останется больше пространства для важного.',
-      'заверши одно давно отложенное дело. маленькая завершённость тоже приносит облегчение.',
-    ],
-  },
-  {
-    image: 'moon_inspiration.png',
-    title: 'вдохновение рядом',
-    tips: [
-      'прислушайся к своим идеям. запиши одну мысль, которую давно хотелось воплотить.',
-      'не жди идеального момента для своей идеи. попробуй сделать первый шаг уже сегодня.',
-      'разреши себе немного пофантазировать. не каждую мысль нужно сразу превращать в план.',
-      'попробуй привычное занятие новым способом. неожиданный результат может тебя удивить.',
-      'запиши идею, которая пришла сегодня в голову. даже если пока не знаешь, что с ней делать.',
-      'найди источник вдохновения вне привычной ленты: прогулка, музыка, книга или разговор.',
-      'не сравнивай свой путь с чужим. твои идеи заслуживают собственного пространства.',
-    ],
-  },
-  {
-    image: 'moon_money.png',
-    title: 'день финансовой осознанности',
-    tips: [
-      'посмотри на свои расходы без критики. понимание финансов начинается с внимательного отношения к ним.',
-      'перед покупкой спроси себя: действительно ли мне это нужно или я просто хочу порадовать себя?',
-      'удели время своей финансовой цели. даже небольшой шаг приближает тебя к результату.',
-      'проверь подписки и регулярные платежи. возможно, найдётся то, чем ты уже не пользуешься.',
-      'подумай, как можно увеличить доход благодаря своим навыкам и опыту.',
-      'замечай не только расходы, но и свои финансовые достижения. это тоже важно.',
-      'если позволяет бюджет, отложи небольшую сумму. регулярность важнее размера.',
-    ],
-  },
-  {
-    image: 'moon_sport.png',
-    title: 'время подвигаться',
-    tips: [
-      'добавь немного движения в свой день. прогулка, растяжка или короткая тренировка — выбирай сама.',
-      'не обязательно устраивать большую тренировку. сегодня достаточно прогулки и немного движения.',
-      'прислушайся к своему телу. выбери активность, после которой чувствуешь себя лучше.',
-      'сделай небольшую разминку между делами. твоё тело оценит эту заботу.',
-      'попробуй новое движение или тренировку. иногда смена привычного формата возвращает интерес.',
-      'найди время для прогулки. свежий воздух поможет переключиться и восстановить силы.',
-      'помни: отдых тоже часть заботы о теле. не нужно заслуживать право на паузу.',
-    ],
-  },
-];
+import React, { useMemo, useRef, useState } from 'react';
+import { getDailyCards } from '../data/dailyPrompts';
 
 const topics = [
-  { icon: '✈️', title: 'путешествия' },
-  { icon: '🎨', title: 'дизайн' },
-  { icon: '🍽️', title: 'готовка' },
-  { icon: '🌿', title: 'растения' },
-  { icon: '🧘', title: 'самопознание' },
-  { icon: '🎀', title: 'красота' },
-  { icon: '💪', title: 'спорт' },
-  { icon: '📚', title: 'обучение' },
-  { icon: '💰', title: 'финансы' },
-  { icon: '🏡', title: 'дом' },
-  { icon: '❤️', title: 'отношения' },
-  { icon: '🩺', title: 'здоровье' },
-  { icon: '💼', title: 'карьера' },
-  { icon: '🎉', title: 'события' },
-  { icon: '✨', title: 'личное развитие' },
+  { id: 'travel', icon: '✈️', title: 'путешествия' },
+  { id: 'design', icon: '🎨', title: 'дизайн' },
+  { id: 'cooking', icon: '🍽️', title: 'готовка' },
+  { id: 'plants', icon: '🌿', title: 'растения' },
+  { id: 'self_knowledge', icon: '🧘', title: 'самопознание' },
+  { id: 'beauty', icon: '🎀', title: 'красота' },
+  { id: 'sport', icon: '💪', title: 'спорт' },
+  { id: 'learning', icon: '📚', title: 'обучение' },
+  { id: 'money', icon: '💰', title: 'финансы' },
+  { id: 'home', icon: '🏡', title: 'дом' },
+  { id: 'relationships', icon: '❤️', title: 'отношения' },
+  { id: 'health', icon: '🩺', title: 'здоровье' },
+  { id: 'career', icon: '💼', title: 'карьера' },
+  { id: 'events', icon: '🎉', title: 'события' },
+  { id: 'personal_growth', icon: '✨', title: 'личное развитие' },
 ];
 
 const CHARACTER_WIDTH = 140;
 const CHARACTER_GAP = 4;
 
-const getDayNumber = () => {
-  const now = new Date();
-  const startOfYear = new Date(now.getFullYear(), 0, 0);
+function getPromptItems(card) {
+  if (!card) return [];
 
-  return Math.floor(
-    (
-      new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate()
-      ) - startOfYear
-    ) / 86400000
+  const promptList =
+    card.prompts ||
+    card.suggestions ||
+    card.dailyPrompts ||
+    card.items;
+
+  if (Array.isArray(promptList) && promptList.length > 0) {
+    return promptList;
+  }
+
+  return [card];
+}
+
+function getPromptTitle(prompt, index) {
+  if (typeof prompt === 'string') return prompt;
+
+  return (
+    prompt?.title ||
+    prompt?.label ||
+    prompt?.text ||
+    prompt?.prompt ||
+    `подсказка ${index + 1}`
   );
-};
+}
+
+function getPromptDescription(prompt) {
+  if (typeof prompt === 'string') return '';
+
+  const description =
+    prompt?.text ||
+    prompt?.description ||
+    prompt?.prompt ||
+    '';
+
+  return description === getPromptTitle(prompt, 0) ? '' : description;
+}
 
 export default function MoonScreen({ onSelectTopic }) {
-  const [activeTopic, setActiveTopic] = useState(null);
   const [activeCharacterIndex, setActiveCharacterIndex] = useState(0);
+  const [question, setQuestion] = useState('');
+  const [showAllPrompts, setShowAllPrompts] = useState(false);
 
   const carouselRef = useRef(null);
-  const topicsRef = useRef(null);
+  const scrollLockRef = useRef(false);
 
-  const dragData = useRef({
-    isDown: false,
-    startX: 0,
-    scrollLeft: 0,
-    moved: false,
-  });
+  const dailyCards = getDailyCards();
 
-  const dayNumber = getDayNumber();
+  const cards = useMemo(
+    () =>
+      topics.map((topic) => {
+        const dailyCard = Array.isArray(dailyCards)
+          ? dailyCards.find((card) => card.id === topic.id)
+          : null;
 
-  // Переключение карусели.
+        return {
+          ...topic,
+          ...(dailyCard || {}),
+          id: topic.id,
+          topic: dailyCard?.topic || topic.title,
+          image: dailyCard?.image || `${topic.id}.png`,
+        };
+      }),
+    [dailyCards]
+  );
+
+  const activeCard = cards[activeCharacterIndex];
+  const activePrompts = getPromptItems(activeCard);
+  const visiblePrompts = showAllPrompts
+    ? activePrompts
+    : activePrompts.slice(0, 3);
+
   const handleCarouselScroll = () => {
-    if (!carouselRef.current) return;
+    if (!carouselRef.current || scrollLockRef.current) return;
 
     const width = carouselRef.current.clientWidth;
     if (!width) return;
 
-    const index = Math.round(
-      carouselRef.current.scrollLeft / width
-    );
+    const index = Math.round(carouselRef.current.scrollLeft / width);
+    const safeIndex = Math.max(0, Math.min(index, cards.length - 1));
 
-    setActiveCharacterIndex(
-      Math.min(index, dailyCharacters.length - 1)
+    setActiveCharacterIndex((current) =>
+      current === safeIndex ? current : safeIndex
     );
   };
 
   const goToCharacter = (index) => {
     if (!carouselRef.current) return;
 
+    const safeIndex = Math.max(0, Math.min(index, cards.length - 1));
     const width = carouselRef.current.clientWidth;
 
+    scrollLockRef.current = true;
     carouselRef.current.scrollTo({
-      left: width * index,
+      left: width * safeIndex,
       behavior: 'smooth',
     });
 
-    setActiveCharacterIndex(index);
+    setActiveCharacterIndex(safeIndex);
+    setShowAllPrompts(false);
+
+    window.setTimeout(() => {
+      scrollLockRef.current = false;
+    }, 500);
   };
 
-  // Свайпы карусели не переключают основной экран.
   const handleCarouselTouch = (event) => {
     event.stopPropagation();
   };
 
-  // Перетаскивание тематической ленты мышкой.
-  const handleMouseDown = (event) => {
-    if (event.button !== 0 || !topicsRef.current) return;
+  const openPromptChat = (card, prompt) => {
+    if (!card || !prompt || !onSelectTopic) return;
 
-    dragData.current = {
-      isDown: true,
-      startX: event.clientX,
-      scrollLeft: topicsRef.current.scrollLeft,
-      moved: false,
-    };
+    const promptTitle = getPromptTitle(prompt, 0);
+    const promptText =
+      typeof prompt === 'string'
+        ? prompt
+        : prompt?.text ||
+          prompt?.description ||
+          prompt?.prompt ||
+          promptTitle;
+
+    const agentPrompt =
+      typeof prompt === 'object' && prompt?.agentPrompt
+        ? prompt.agentPrompt
+        : `Тема: ${card.topic || card.title}.
+Подсказка дня: ${promptTitle}.
+${promptText}
+
+Продолжи со мной диалог по этой теме. Учитывай мои ответы, задавай уместные уточняющие вопросы и предлагай конкретные, выполнимые шаги.`;
+
+    onSelectTopic({
+      title: card.topic || card.title,
+      agentPrompt,
+    });
   };
 
-  const handleMouseMove = (event) => {
-    if (!dragData.current.isDown || !topicsRef.current) return;
+  const handleQuestionSubmit = (event) => {
+    event.preventDefault();
 
-    const distance = event.clientX - dragData.current.startX;
+    const trimmedQuestion = question.trim();
+    if (!trimmedQuestion || !onSelectTopic) return;
 
-    if (Math.abs(distance) > 5) {
-      dragData.current.moved = true;
-    }
+    onSelectTopic({
+      title: activeCard?.topic || activeCard?.title || 'общение',
+      agentPrompt: `Выбранная тема: ${activeCard?.topic || activeCard?.title || 'общение'}.
+Мой вопрос: ${trimmedQuestion}
 
-    topicsRef.current.scrollLeft =
-      dragData.current.scrollLeft - distance;
-  };
+Ответь мне в диалоге как МУУН: бережно, конкретно и с учётом выбранной темы.`,
+    });
 
-  const handleMouseUp = () => {
-    dragData.current.isDown = false;
-  };
-
-  // Выбор темы и передача её агенту.
-  const handleTopicClick = (topic) => {
-    setActiveTopic(
-      activeTopic === topic.title ? null : topic.title
-    );
-
-    if (onSelectTopic) {
-      onSelectTopic(topic);
-    }
+    setQuestion('');
   };
 
   return (
     <div className="relative flex flex-col w-full h-full text-white overflow-hidden">
 
-      {/* Основная область экрана */}
+      {/* Единая прокручиваемая область: карусель, подсказки и все темы */}
       <div
         className="flex-1 overflow-y-auto overflow-x-hidden px-3"
         style={{
           paddingTop: '105px',
-          paddingBottom: '160px',
+          paddingBottom: '105px',
           scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch',
         }}
       >
 
-        {/* Карусель пяти МУУН */}
+        {/* Карусель персонажей МУУН */}
         <div
           ref={carouselRef}
           className="flex w-full overflow-x-auto overflow-y-hidden snap-x snap-mandatory"
@@ -223,84 +207,82 @@ export default function MoonScreen({ onSelectTopic }) {
           onTouchMove={handleCarouselTouch}
           onTouchEnd={handleCarouselTouch}
         >
-          {dailyCharacters.map((character) => (
+          {cards.map((card) => (
             <div
-              key={character.image}
+              key={card.id}
               className="w-full shrink-0 snap-center"
             >
-
-              {/* Карточка автоматически растёт вниз */}
-              <div
-                className="relative w-full min-h-[112px] rounded-full"
-                style={{
-                  overflow: 'visible',
-                }}
-              >
-
-                {/* Стеклянный фон */}
+              <div className="relative block w-full text-left">
                 <div
-                  className="absolute inset-0 rounded-full pointer-events-none"
-                  style={{
-                    background:
-                      'linear-gradient(110deg, rgba(10,25,48,0.82), rgba(31,68,105,0.48))',
-                    border: '1px solid rgba(190,220,255,0.35)',
-                    boxShadow: '0 0 25px rgba(48,110,190,0.12)',
-                    backdropFilter: 'blur(14px)',
-                    WebkitBackdropFilter: 'blur(14px)',
-                  }}
-                />
-
-                {/* Отдельная область персонажа */}
-                <div
-                  className="absolute left-0 top-0 bottom-0 z-20 pointer-events-none"
-                  style={{
-                    width: `${CHARACTER_WIDTH}px`,
-                  }}
+                  className="relative w-full min-h-[130px] rounded-[56px]"
+                  style={{ overflow: 'visible' }}
                 >
-                  <img
-                    src={`/moon/characters/${character.image}`}
-                    alt="муун"
-                    draggable="false"
+                  {/* Стеклянный фон карточки */}
+                  <div
+                    className="absolute inset-0 rounded-[56px] pointer-events-none"
                     style={{
-                      position: 'absolute',
-                      left: 0,
-                      bottom: 0,
-                      width: `${CHARACTER_WIDTH}px`,
-                      height: '135px',
-                      maxWidth: 'none',
-                      objectFit: 'contain',
-                      objectPosition: 'left bottom',
+                      background:
+                        'linear-gradient(110deg, rgba(10,25,48,0.82), rgba(31,68,105,0.48))',
+                      border: '1px solid rgba(190,220,255,0.35)',
+                      boxShadow: '0 0 25px rgba(48,110,190,0.12)',
+                      backdropFilter: 'blur(14px)',
+                      WebkitBackdropFilter: 'blur(14px)',
                     }}
                   />
-                </div>
 
-                {/* Текст начинается через 4 px после области МУУН */}
-                <div
-                  className="relative z-10 flex flex-col justify-center min-w-0"
-                  style={{
-                    marginLeft: `${CHARACTER_WIDTH + CHARACTER_GAP}px`,
-                    padding: '12px 14px 12px 0',
-                    gap: '4px',
-                  }}
-                >
+                  {/* Персонаж прикреплён к левой стороне карточки */}
                   <div
-                    className="text-[15px] font-medium"
+                    className="absolute left-0 bottom-0 z-20 pointer-events-none"
                     style={{
-                      fontFamily: 'Gilroy, sans-serif',
-                      overflowWrap: 'break-word',
+                      width: `${CHARACTER_WIDTH}px`,
+                      height: '135px',
                     }}
                   >
-                    {character.title}
+                    <img
+                      src={`/moon/characters/${card.image}`}
+                      alt={`муун — ${card.topic}`}
+                      draggable="false"
+                      onError={(event) => {
+                        event.currentTarget.style.opacity = '0';
+                      }}
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        bottom: 0,
+                        width: `${CHARACTER_WIDTH}px`,
+                        height: '135px',
+                        maxWidth: 'none',
+                        objectFit: 'contain',
+                        objectPosition: 'left bottom',
+                      }}
+                    />
                   </div>
 
+                  {/* Текст карточки */}
                   <div
-                    className="text-[13px] leading-[1.25] font-light text-white/90"
+                    className="relative z-10 flex flex-col justify-center min-w-0"
                     style={{
+                      marginLeft: `${CHARACTER_WIDTH + CHARACTER_GAP}px`,
+                      maxWidth: '720px',
+                      minHeight: '130px',
+                      padding: '16px 18px 16px 0',
+                      gap: '4px',
                       fontFamily: 'Gilroy, sans-serif',
-                      overflowWrap: 'break-word',
                     }}
                   >
-                    {character.tips[(dayNumber - 1) % character.tips.length]}
+                    <div
+                      className="text-[15px] font-medium"
+                      style={{ overflowWrap: 'break-word' }}
+                    >
+                      {card.title || card.topic}
+                    </div>
+
+                    <div
+                      className="text-[13px] leading-[1.25] font-light text-white/90"
+                      style={{ overflowWrap: 'break-word' }}
+                    >
+                      {card.text}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -309,14 +291,14 @@ export default function MoonScreen({ onSelectTopic }) {
         </div>
 
         {/* Индикаторы карусели */}
-        <div className="flex items-center justify-center gap-5 mt-4">
-          {dailyCharacters.map((character, index) => (
+        <div className="flex items-center justify-center gap-3 mt-4">
+          {cards.map((card, index) => (
             <button
-              key={character.image}
+              key={card.id}
               type="button"
-              aria-label={`персонаж ${index + 1}`}
+              aria-label={`перейти к теме ${card.topic}`}
               onClick={() => goToCharacter(index)}
-              className="rounded-full transition-all duration-500"
+              className="rounded-full transition-all duration-300"
               style={{
                 width: activeCharacterIndex === index ? '12px' : '7px',
                 height: '7px',
@@ -335,84 +317,146 @@ export default function MoonScreen({ onSelectTopic }) {
           ))}
         </div>
 
-        {/* Здесь позже добавим центральный контент МУУН */}
-
-      </div>
-
-      {/* Закреплённые тематические направления */}
-      <div
-        className="absolute left-0 w-full px-2 z-30"
-        style={{
-          bottom: 'calc(76px + max(14px, env(safe-area-inset-bottom)))',
-        }}
-      >
-        <div
-          ref={topicsRef}
-          className="flex gap-2 overflow-x-auto overflow-y-hidden select-none"
-          style={{
-            scrollbarWidth: 'none',
-            WebkitOverflowScrolling: 'touch',
-            touchAction: 'pan-x',
-            scrollSnapType: 'x proximity',
-            cursor: 'grab',
-          }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onDragStart={(event) => event.preventDefault()}
-          onTouchStart={(event) => event.stopPropagation()}
-          onTouchMove={(event) => event.stopPropagation()}
-          onTouchEnd={(event) => event.stopPropagation()}
-          onClickCapture={(event) => {
-            if (dragData.current.moved) {
-              event.preventDefault();
-              event.stopPropagation();
-              dragData.current.moved = false;
-            }
-          }}
+        {/* Подсказки выбранной темы */}
+        <section
+          className="mt-5 mb-5"
+          style={{ fontFamily: 'Gilroy, sans-serif' }}
         >
-          {topics.map((topic) => (
+          <div className="flex items-center justify-between mb-3 px-1">
+            <div className="text-[14px] font-medium">
+              ✨ подсказки на сегодня
+            </div>
+            <div className="text-[11px] text-white/50">
+              {activeCard?.title || activeCard?.topic}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            {visiblePrompts.map((prompt, index) => (
+              <button
+                key={`${activeCard.id}-prompt-${index}`}
+                type="button"
+                onClick={() => openPromptChat(activeCard, prompt)}
+                className="w-full text-left rounded-2xl px-3 py-3 transition-all duration-200"
+                style={{
+                  background: 'rgba(13,28,49,0.72)',
+                  border: '1px solid rgba(190,220,255,0.22)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  fontFamily: 'Gilroy, sans-serif',
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className="flex items-center justify-center shrink-0 rounded-full"
+                    style={{
+                      width: '27px',
+                      height: '27px',
+                      background: 'rgba(85,124,255,0.2)',
+                      color: '#b8c8ff',
+                      fontSize: '12px',
+                    }}
+                  >
+                    {index + 1}
+                  </span>
+
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-[13px] leading-[1.35] text-white/95">
+                      {getPromptTitle(prompt, index)}
+                    </span>
+                    {getPromptDescription(prompt) && (
+                      <span className="block mt-1 text-[11px] leading-[1.35] text-white/60">
+                        {getPromptDescription(prompt)}
+                      </span>
+                    )}
+                  </span>
+
+                  <span className="text-[20px] text-white/70">→</span>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {activePrompts.length > 3 && (
             <button
-              key={topic.title}
-              onClick={() => handleTopicClick(topic)}
-              className="flex items-center gap-2 shrink-0 snap-start rounded-full px-4 py-3 normal-case transition-all duration-300"
+              type="button"
+              onClick={() => setShowAllPrompts((value) => !value)}
+              className="w-full mt-2 py-2 text-[12px] text-[#b8c8ff]"
               style={{
-                background:
-                  activeTopic === topic.title
-                    ? 'rgba(85,124,255,0.28)'
-                    : 'rgba(8,19,35,0.75)',
-                border:
-                  activeTopic === topic.title
-                    ? '1px solid rgba(130,165,255,0.85)'
-                    : '1px solid rgba(190,220,255,0.28)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
+                background: 'transparent',
+                border: 'none',
                 fontFamily: 'Gilroy, sans-serif',
               }}
             >
-              <span className="text-[18px]">{topic.icon}</span>
-              <span className="text-[13px] whitespace-nowrap">
-                {topic.title}
-              </span>
+              {showAllPrompts
+                ? 'свернуть подсказки'
+                : `ещё ${activePrompts.length - 3} подсказки`}
             </button>
-          ))}
-        </div>
+          )}
+        </section>
+
+        {/* Все 15 тем одновременно видны в сетке 3 × 5 */}
+        <section
+          className="mb-5"
+          style={{ fontFamily: 'Gilroy, sans-serif' }}
+        >
+          <div className="text-[14px] font-medium mb-3 px-1">
+            выбери направление
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            {topics.map((topic, index) => {
+              const isActive = activeCharacterIndex === index;
+
+              return (
+                <button
+                  key={topic.id}
+                  type="button"
+                  onClick={() => goToCharacter(index)}
+                  aria-pressed={isActive}
+                  className="flex flex-col items-center justify-center gap-1 min-w-0 rounded-2xl px-1 py-3 transition-all duration-300"
+                  style={{
+                    minHeight: '66px',
+                    background: isActive
+                      ? 'rgba(85,124,255,0.28)'
+                      : 'rgba(8,19,35,0.75)',
+                    border: isActive
+                      ? '1px solid rgba(150,175,255,0.95)'
+                      : '1px solid rgba(190,220,255,0.25)',
+                    boxShadow: isActive
+                      ? '0 0 16px rgba(85,124,255,0.32)'
+                      : 'none',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                  }}
+                >
+                  <span className="text-[19px] leading-none">
+                    {topic.icon}
+                  </span>
+                  <span className="text-[10px] leading-[1.15] text-center break-words">
+                    {topic.title}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
       </div>
 
-      {/* Закреплённое поле вопроса */}
+      {/* Закреплённое поле вопроса — отправляет сообщение выбранной МУУН */}
       <div
-        className="absolute bottom-0 left-0 w-full px-4 pt-5 z-40"
+        className="absolute bottom-0 left-0 w-full px-4 pt-4 z-40"
         style={{
           paddingBottom: 'max(14px, env(safe-area-inset-bottom))',
           background:
-            'linear-gradient(to top, rgba(5,12,25,0.85), transparent)',
+            'linear-gradient(to top, rgba(5,12,25,0.92), rgba(5,12,25,0.35), transparent)',
         }}
       >
-        <div
+        <form
+          onSubmit={handleQuestionSubmit}
           className="flex items-center w-full h-[48px] rounded-full px-4"
           style={{
-            background: 'rgba(45,52,68,0.75)',
+            background: 'rgba(45,52,68,0.82)',
             border: '1px solid rgba(210,225,255,0.45)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
@@ -421,27 +465,45 @@ export default function MoonScreen({ onSelectTopic }) {
         >
           <input
             type="text"
+            value={question}
+            onChange={(event) => setQuestion(event.target.value)}
             placeholder="спросить у муун..."
             className="flex-1 min-w-0 bg-transparent outline-none text-white text-[14px] placeholder:text-white/65"
             style={{ fontFamily: 'Gilroy, sans-serif' }}
           />
 
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="rgba(220,235,255,0.75)"
-            strokeWidth="1.7"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+          <button
+            type="submit"
+            aria-label="отправить вопрос"
+            disabled={!question.trim()}
+            className="ml-2 flex items-center justify-center shrink-0"
+            style={{
+              width: '28px',
+              height: '28px',
+              color: question.trim()
+                ? 'rgba(220,235,255,0.95)'
+                : 'rgba(220,235,255,0.4)',
+              background: 'transparent',
+              border: 'none',
+              cursor: question.trim() ? 'pointer' : 'default',
+            }}
           >
-            <path d="M22 2 11 13" />
-            <path d="m22 2-7 20-4-9-9-4Z" />
-          </svg>
-        </div>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M22 2 11 13" />
+              <path d="m22 2-7 20-4-9-9-4Z" />
+            </svg>
+          </button>
+        </form>
       </div>
-
     </div>
   );
 }

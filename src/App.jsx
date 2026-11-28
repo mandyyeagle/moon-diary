@@ -24,6 +24,11 @@ export default function App() {
 
   // Выбор темы открывает чат поверх экрана «муун».
   const handleTopicSelect = (topic) => {
+    if (topic && typeof topic === 'object' && topic.agentPrompt) {
+      setPendingPrompt(topic.agentPrompt);
+      return;
+    }
+
     const topicTitle =
       typeof topic === 'string' ? topic : topic.title;
 
@@ -80,31 +85,38 @@ export default function App() {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Космический фон на весь экран */}
-      <motion.div
-        className="absolute top-0 left-[-20vw] z-0 h-full w-[140vw] pointer-events-none"
-        animate={{
-          x: ['0vw', '-50vw'],
-        }}
-        transition={{
-          duration: 180,
-          repeat: Infinity,
-          repeatType: 'reverse',
-          ease: 'linear',
-        }}
-        style={{
-          backgroundImage: "url('/bg.jpg')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      />
+      {/* Удлинённый космический фон */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <motion.img
+          src="/bg.jpg"
+          alt=""
+          draggable="false"
+          className="absolute top-0 left-0 h-full w-auto max-w-none"
+          animate={{
+            x: ['0%', '-30%'],
+          }}
+          transition={{
+            duration: 180,
+            repeat: Infinity,
+            repeatType: 'loop',
+            ease: 'linear',
+          }}
+          style={{
+            height: '100%',
+            width: 'auto',
+            maxWidth: 'none',
+            objectFit: 'cover',
+            willChange: 'transform',
+          }}
+        />
+      </div>
 
       {/* Кометы */}
       <div
         className="meteor top-[10%] right-[-10%]"
         style={{ animationDelay: '0s' }}
       />
+
       <div
         className="meteor top-[40%] right-[-20%]"
         style={{ animationDelay: '8s' }}
@@ -135,8 +147,8 @@ export default function App() {
         </motion.div>
       </div>
 
-      {/* Парящая Луна */}
-      {activeTab !== 'today' && (
+      {/* Большая декоративная Луна — только на экране календаря */}
+      {activeTab === 'calendar' && (
         <motion.div
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
