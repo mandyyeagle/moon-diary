@@ -65,7 +65,6 @@ function getPromptDescription(prompt) {
 export default function MoonScreen({ onSelectTopic }) {
   const [activeCharacterIndex, setActiveCharacterIndex] = useState(0);
   const [question, setQuestion] = useState('');
-  const [showAllPrompts, setShowAllPrompts] = useState(false);
 
   const carouselRef = useRef(null);
   const scrollLockRef = useRef(false);
@@ -91,10 +90,6 @@ export default function MoonScreen({ onSelectTopic }) {
   );
 
   const activeCard = cards[activeCharacterIndex];
-  const activePrompts = getPromptItems(activeCard);
-  const visiblePrompts = showAllPrompts
-    ? activePrompts
-    : activePrompts.slice(0, 3);
 
   const handleCarouselScroll = () => {
     if (!carouselRef.current || scrollLockRef.current) return;
@@ -123,7 +118,6 @@ export default function MoonScreen({ onSelectTopic }) {
     });
 
     setActiveCharacterIndex(safeIndex);
-    setShowAllPrompts(false);
 
     window.setTimeout(() => {
       scrollLockRef.current = false;
@@ -212,9 +206,22 @@ ${promptText}
               key={card.id}
               className="w-full shrink-0 snap-center"
             >
-              <div className="relative block w-full text-left">
+              <button
+                type="button"
+                aria-label={`открыть разговор с муун: ${card.topic}`}
+                onClick={() => openPromptChat(card, getPromptItems(card)[0])}
+                className="group relative block w-full text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9db6ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f1c]"
+                style={{
+                  padding: 0,
+                  border: 'none',
+                  background: 'transparent',
+                  color: 'inherit',
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                }}
+              >
                 <div
-                  className="relative w-full min-h-[130px] rounded-[56px]"
+                  className="relative w-full min-h-[130px] rounded-[56px] transition-transform duration-300 group-hover:scale-[1.01] group-active:scale-[0.995]"
                   style={{ overflow: 'visible' }}
                 >
                   {/* Стеклянный фон карточки */}
@@ -229,6 +236,15 @@ ${promptText}
                       WebkitBackdropFilter: 'blur(14px)',
                     }}
                   />
+
+                  {/* Подсказка появляется при наведении на всю карточку */}
+                  <div
+                    className="pointer-events-none absolute inset-0 z-[25] hidden items-end justify-end rounded-[56px] px-5 pb-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:flex"
+                    style={{
+                      background: 'linear-gradient(0deg, rgba(7,18,36,0.22), transparent 45%)',
+                    }}
+                  >
+                  </div>
 
                   {/* Персонаж прикреплён к левой стороне карточки */}
                   <div
@@ -276,12 +292,12 @@ ${promptText}
 
                   {/* Текст карточки */}
                   <div
-                    className="relative z-10 flex flex-col justify-center min-w-0"
+                    className="relative z-10 flex flex-col min-w-0"
                     style={{
                       marginLeft: `${CHARACTER_WIDTH + CHARACTER_GAP}px`,
                       maxWidth: '720px',
                       minHeight: '130px',
-                      padding: '16px 18px 16px 0',
+                      padding: '16px 18px 12px 0',
                       gap: '4px',
                       fontFamily: 'Gilroy, sans-serif',
                     }}
@@ -299,9 +315,21 @@ ${promptText}
                     >
                       {card.text}
                     </div>
+
+                    {/* Постоянная подсказка о переходе в диалог */}
+                    <div
+                      className="mt-2 text-[12px] font-medium text-white/75 transition-colors duration-300 group-hover:text-white"
+                      style={{
+                        fontFamily: 'Gilroy, sans-serif',
+                        lineHeight: 1.3,
+                        overflowWrap: 'break-word',
+                      }}
+                    >
+                      нажми, чтобы обсудить с муун
+                    </div>
                   </div>
                 </div>
-              </div>
+              </button>
             </div>
           ))}
         </div>
@@ -332,84 +360,6 @@ ${promptText}
             />
           ))}
         </div>
-
-        {/* Подсказки выбранной темы */}
-        <section
-          className="mt-5 mb-5"
-          style={{ fontFamily: 'Gilroy, sans-serif' }}
-        >
-          <div className="flex items-center justify-between mb-3 px-1">
-            <div className="text-[14px] font-medium">
-              ✨ подсказки на сегодня
-            </div>
-            <div className="text-[11px] text-white/50">
-              {activeCard?.title || activeCard?.topic}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            {visiblePrompts.map((prompt, index) => (
-              <button
-                key={`${activeCard.id}-prompt-${index}`}
-                type="button"
-                onClick={() => openPromptChat(activeCard, prompt)}
-                className="w-full text-left rounded-2xl px-3 py-3 transition-all duration-200"
-                style={{
-                  background: 'rgba(13,28,49,0.72)',
-                  border: '1px solid rgba(190,220,255,0.22)',
-                  backdropFilter: 'blur(12px)',
-                  WebkitBackdropFilter: 'blur(12px)',
-                  fontFamily: 'Gilroy, sans-serif',
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className="flex items-center justify-center shrink-0 rounded-full"
-                    style={{
-                      width: '27px',
-                      height: '27px',
-                      background: 'rgba(85,124,255,0.2)',
-                      color: '#b8c8ff',
-                      fontSize: '12px',
-                    }}
-                  >
-                    {index + 1}
-                  </span>
-
-                  <span className="flex-1 min-w-0">
-                    <span className="block text-[13px] leading-[1.35] text-white/95">
-                      {getPromptTitle(prompt, index)}
-                    </span>
-                    {getPromptDescription(prompt) && (
-                      <span className="block mt-1 text-[11px] leading-[1.35] text-white/60">
-                        {getPromptDescription(prompt)}
-                      </span>
-                    )}
-                  </span>
-
-                  <span className="text-[20px] text-white/70">→</span>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {activePrompts.length > 3 && (
-            <button
-              type="button"
-              onClick={() => setShowAllPrompts((value) => !value)}
-              className="w-full mt-2 py-2 text-[12px] text-[#b8c8ff]"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                fontFamily: 'Gilroy, sans-serif',
-              }}
-            >
-              {showAllPrompts
-                ? 'свернуть подсказки'
-                : `ещё ${activePrompts.length - 3} подсказки`}
-            </button>
-          )}
-        </section>
 
         {/* Все 15 тем одновременно видны в сетке 3 × 5 */}
         <section

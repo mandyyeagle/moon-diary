@@ -93,7 +93,7 @@ export default function App() {
           draggable="false"
           className="absolute top-0 left-0 h-full w-auto max-w-none"
           animate={{
-            x: ['0%', '-30%'],
+            x: ['0%', '-50%'],
           }}
           transition={{
             duration: 180,
